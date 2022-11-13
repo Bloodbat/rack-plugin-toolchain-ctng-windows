@@ -23,3 +23,4 @@ RUN rm -rf /var/lib/apt/lists/*
 USER build
 
 RUN JOBS=$JOBS make toolchain-win
+RUN rm /home/build/rack-plugin-toolchain/Makefile
