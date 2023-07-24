@@ -79,7 +79,7 @@ dep-ubuntu:
 		perl \
 		coreutils \
 		zstd \
-		markdown
-
+		markdown \
+		libarchive-tools
 
 .NOTPARALLEL:
