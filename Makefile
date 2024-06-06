@@ -16,6 +16,10 @@ export JOBS :=
 export JOBS_CT_NG :=
 endif
 
+WGET := wget --continue
+UNTAR := tar -x -f
+UNZIP := unzip
+
 
 # Toolchain build
 
@@ -23,8 +27,7 @@ endif
 crosstool-ng := $(LOCAL_DIR)/bin/ct-ng
 $(crosstool-ng):
 	git clone https://github.com/crosstool-ng/crosstool-ng.git
-	# Use development version to avoid zlib issue until proper release is available
-	cd crosstool-ng && git checkout 82346dd7dfe7ed20dc8ec71e193c2d3b1930e22d
+	cd crosstool-ng && git checkout e63c40854c977f488bee159a8f8ebf5fc06c8666
 	cd crosstool-ng && ./bootstrap
 	cd crosstool-ng && ./configure --prefix="$(LOCAL_DIR)"
 	cd crosstool-ng && make -j $(JOBS)
@@ -41,7 +44,6 @@ $(toolchain-win): $(crosstool-ng)
 
 
 # Docker helpers
-
 
 dep-ubuntu:
 	apt-get update
