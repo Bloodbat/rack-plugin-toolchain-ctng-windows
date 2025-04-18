@@ -16,38 +16,42 @@ export JOBS :=
 export JOBS_CT_NG :=
 endif
 
-WGET := wget --continue
+WGET := wget -c
 UNTAR := tar -x -f
 UNZIP := unzip
 
+SHA256 := sha256check() { echo "$$2  $$1" | sha256sum -c; }; sha256check
+
+CROSSTOOL_NG_VERSION := 1.27.0
 
 # Toolchain build
 
-
 crosstool-ng := $(LOCAL_DIR)/bin/ct-ng
 $(crosstool-ng):
-	git clone https://github.com/crosstool-ng/crosstool-ng.git
-	cd crosstool-ng && git checkout e63c40854c977f488bee159a8f8ebf5fc06c8666
-	cd crosstool-ng && ./bootstrap
-	cd crosstool-ng && ./configure --prefix="$(LOCAL_DIR)"
-	cd crosstool-ng && make -j $(JOBS)
-	cd crosstool-ng && make install -j $(JOBS)
-	rm -rf crosstool-ng
+	$(WGET) "http://crosstool-ng.org/download/crosstool-ng/crosstool-ng-$(CROSSTOOL_NG_VERSION).tar.bz2"
+	$(SHA256) crosstool-ng-$(CROSSTOOL_NG_VERSION).tar.bz2 6307b93a0abdd1b20b85305210094195825ff00a2ed8b650eeab21235088da4b
+	$(UNTAR) crosstool-ng-$(CROSSTOOL_NG_VERSION).tar.bz2
+	rm crosstool-ng-$(CROSSTOOL_NG_VERSION).tar.bz2
+	cd crosstool-ng-$(CROSSTOOL_NG_VERSION) && ./configure --prefix="$(LOCAL_DIR)"
+	cd crosstool-ng-$(CROSSTOOL_NG_VERSION) && make -j $(JOBS)
+	cd crosstool-ng-$(CROSSTOOL_NG_VERSION) && make install
+	rm -rf crosstool-ng-$(CROSSTOOL_NG_VERSION)
 
 
 toolchain-win := $(LOCAL_DIR)/x86_64-w64-mingw32
 toolchain-win: $(toolchain-win)
 $(toolchain-win): $(crosstool-ng)
 	ct-ng x86_64-w64-mingw32
+	# I don't know how to set crosstool-ng variables from the command line
+	sed -i 's/CT_MINGW_W64_VERSION=.*/CT_MINGW_W64_VERSION="v10.0.0"/' .config
 	CT_PREFIX="$(LOCAL_DIR)" ct-ng build$(JOBS_CT_NG)
-	rm -rf .build .config build.log /home/build/src
+	rm -rf .build .config build.log
 
 
 # Docker helpers
 
 dep-ubuntu:
-	apt-get update
-	apt-get install -y --no-install-recommends \
+	sudo apt-get install --no-install-recommends \
 		ca-certificates \
 		git \
 		build-essential \
@@ -82,6 +86,7 @@ dep-ubuntu:
 		coreutils \
 		zstd \
 		markdown \
-		libarchive-tools
+		libarchive-tools \
+		gettext
 
 .NOTPARALLEL:
