@@ -37,7 +37,6 @@ $(crosstool-ng):
 	cd crosstool-ng-$(CROSSTOOL_NG_VERSION) && make install
 	rm -rf crosstool-ng-$(CROSSTOOL_NG_VERSION)
 
-
 toolchain-win := $(LOCAL_DIR)/x86_64-w64-mingw32
 toolchain-win: $(toolchain-win)
 $(toolchain-win): $(crosstool-ng)
@@ -46,7 +45,6 @@ $(toolchain-win): $(crosstool-ng)
 	sed -i 's/CT_MINGW_W64_VERSION=.*/CT_MINGW_W64_VERSION="v10.0.0"/' .config
 	CT_PREFIX="$(LOCAL_DIR)" ct-ng build$(JOBS_CT_NG)
 	rm -rf .build .config build.log
-
 
 # Docker helpers
 
